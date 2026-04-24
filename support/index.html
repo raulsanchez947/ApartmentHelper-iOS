@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HousingNav Support</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #162838;
+      --blue: #216dc7;
+      --sky: #e4f1fb;
+      --sand: #fbf0d8;
+      --card: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--sky), #fff 48%, var(--sand));
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(840px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+
+    section {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(22, 40, 56, 0.08);
+      border-radius: 24px;
+      box-shadow: 0 18px 48px rgba(22, 40, 56, 0.08);
+      padding: 28px;
+      margin-top: 18px;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      letter-spacing: -0.06em;
+      line-height: 0.95;
+      margin: 0 0 16px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    a {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .faq {
+      display: grid;
+      gap: 14px;
+    }
+
+    .faq article {
+      padding: 16px;
+      border-radius: 18px;
+      background: #f7fbff;
+    }
+
+    .faq h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .faq p {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Support</span>
+    <h1>HousingNav Support</h1>
+    <p>Get help with HousingNav native tools, including saved listings, notes, compare, calculators, checklists, and Betty assistant.</p>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Email: <a href="mailto:support@housingnav.example">support@housingnav.example</a></p>
+      <p>Expected response time: 1-2 business days.</p>
+      <p>Please replace this placeholder email with your production support inbox before submitting your final App Store metadata.</p>
+    </section>
+
+    <section>
+      <h2>FAQ</h2>
+      <div class="faq">
+        <article>
+          <h3>Does HousingNav require an account?</h3>
+          <p>No. Core tools work locally on device without an external account.</p>
+        </article>
+        <article>
+          <h3>Where are saved listings and notes stored?</h3>
+          <p>Favorites, listing notes, checklist progress, and saved results are stored locally on the user's device.</p>
+        </article>
+        <article>
+          <h3>Are calculator results final approvals?</h3>
+          <p>No. HousingNav provides planning estimates and organization tools. Final eligibility, rent approval, and lease-up decisions are made by the administering agency.</p>
+        </article>
+        <article>
+          <h3>How do I report a problem?</h3>
+          <p>Email support with your device model, iOS version, and a short description of what happened.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
