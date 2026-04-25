@@ -64,9 +64,15 @@ struct ContentView: View {
                 }
             } else {
                 if let selectedRole {
-                    HousingNavTabRoot(role: selectedRole) {
-                        selectedRoleRaw = ""
-                    }
+                    HousingNavTabRoot(
+                        role: selectedRole,
+                        onSwitchRole: {
+                            selectedRoleRaw = selectedRole == .applicant ? AppRole.landlord.rawValue : AppRole.applicant.rawValue
+                        },
+                        onChooseRole: {
+                            selectedRoleRaw = ""
+                        }
+                    )
                 } else {
                     RoleSelectionView { role in
                         selectedRoleRaw = role.rawValue
@@ -82,15 +88,16 @@ struct ContentView: View {
 struct HousingNavTabRoot: View {
     let role: AppRole
     let onSwitchRole: () -> Void
+    let onChooseRole: () -> Void
 
     var body: some View {
         TabView {
             NavigationStack {
                 switch role {
                 case .applicant:
-                    ApplicantDashboardView(onSwitchRole: onSwitchRole)
+                    ApplicantDashboardView(onSwitchRole: onSwitchRole, onChooseRole: onChooseRole)
                 case .landlord:
-                    LandlordDashboardView(onSwitchRole: onSwitchRole)
+                    LandlordDashboardView(onSwitchRole: onSwitchRole, onChooseRole: onChooseRole)
                 }
             }
             .tabItem {
@@ -1420,6 +1427,7 @@ struct RoleSelectionView: View {
 struct ApplicantDashboardView: View {
     @EnvironmentObject private var store: HousingNavStore
     let onSwitchRole: () -> Void
+    let onChooseRole: () -> Void
 
     var completedCount: Int {
         store.checklistItems.filter { $0.role == .applicant && $0.isDone }.count
@@ -1439,6 +1447,12 @@ struct ApplicantDashboardView: View {
 
     var body: some View {
         DashboardShell(title: "Applicant Hub", subtitle: "Track your progress, calculations, and next steps") {
+            RoleSwitcherCard(
+                currentRole: .applicant,
+                onSwitchRole: onSwitchRole,
+                onChooseRole: onChooseRole
+            )
+
             ProgressHero(title: "Checklist progress", value: completedCount, total: totalCount)
 
             VStack(alignment: .leading, spacing: 10) {
@@ -1499,7 +1513,12 @@ struct ApplicantDashboardView: View {
         .navigationTitle("Applicant")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            Button("Switch role", action: onSwitchRole)
+            Menu {
+                Button("Switch to Landlord", action: onSwitchRole)
+                Button("Choose Route", action: onChooseRole)
+            } label: {
+                Label("Roles", systemImage: "arrow.left.arrow.right.circle")
+            }
         }
     }
 }
@@ -1507,6 +1526,7 @@ struct ApplicantDashboardView: View {
 struct LandlordDashboardView: View {
     @EnvironmentObject private var store: HousingNavStore
     let onSwitchRole: () -> Void
+    let onChooseRole: () -> Void
 
     var completedCount: Int {
         store.checklistItems.filter { $0.role == .landlord && $0.isDone }.count
@@ -1526,6 +1546,12 @@ struct LandlordDashboardView: View {
 
     var body: some View {
         DashboardShell(title: "Landlord Hub", subtitle: "Manage estimates, packet prep, and inspection steps") {
+            RoleSwitcherCard(
+                currentRole: .landlord,
+                onSwitchRole: onSwitchRole,
+                onChooseRole: onChooseRole
+            )
+
             ProgressHero(title: "Packet prep progress", value: completedCount, total: totalCount)
 
             VStack(alignment: .leading, spacing: 10) {
@@ -1580,7 +1606,12 @@ struct LandlordDashboardView: View {
         .navigationTitle("Landlord")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            Button("Switch role", action: onSwitchRole)
+            Menu {
+                Button("Switch to Applicant / Tenant", action: onSwitchRole)
+                Button("Choose Route", action: onChooseRole)
+            } label: {
+                Label("Roles", systemImage: "arrow.left.arrow.right.circle")
+            }
         }
     }
 }
@@ -3112,6 +3143,46 @@ struct DashboardShell<Content: View>: View {
                 .padding(20)
             }
         }
+    }
+}
+
+struct RoleSwitcherCard: View {
+    let currentRole: AppRole
+    let onSwitchRole: () -> Void
+    let onChooseRole: () -> Void
+
+    private var destinationLabel: String {
+        currentRole == .applicant ? "Switch to Landlord" : "Switch to Applicant / Tenant"
+    }
+
+    private var currentRouteLabel: String {
+        currentRole == .applicant ? "Applicant / Tenant route active" : "Landlord route active"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label(currentRouteLabel, systemImage: "point.topleft.down.curvedto.point.bottomright.up")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(AppTheme.ink)
+                Spacer()
+            }
+
+            Text("Switch roles at any time without losing saved plans, estimates, answers, or checklist progress.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Button(destinationLabel, action: onSwitchRole)
+                    .buttonStyle(.borderedProminent)
+
+                Button("Choose Route", action: onChooseRole)
+                    .buttonStyle(.bordered)
+            }
+        }
+        .padding(16)
+        .background(AppTheme.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
     }
 }
 
