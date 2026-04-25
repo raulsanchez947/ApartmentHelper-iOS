@@ -159,8 +159,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
     let bedroomSummary: String
     let summary: String
     let source: ListingSource
+    let borough: String?
     let statusText: String?
     let deadlineText: String?
+    let deadlineDate: Date?
+    let urgencyText: String?
+    let developmentType: String?
+    let unitCount: Int?
+    let unitMixDetails: [String]
+    let amiSummary: String?
     let listingURL: URL?
     let coordinate: CLLocationCoordinate2D
 
@@ -173,8 +180,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
         case bedroomSummary
         case summary
         case source
+        case borough
         case statusText
         case deadlineText
+        case deadlineDate
+        case urgencyText
+        case developmentType
+        case unitCount
+        case unitMixDetails
+        case amiSummary
         case listingURL
         case latitude
         case longitude
@@ -189,8 +203,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
         bedroomSummary: String,
         summary: String,
         source: ListingSource,
+        borough: String?,
         statusText: String?,
         deadlineText: String?,
+        deadlineDate: Date?,
+        urgencyText: String?,
+        developmentType: String?,
+        unitCount: Int?,
+        unitMixDetails: [String],
+        amiSummary: String?,
         listingURL: URL?,
         coordinate: CLLocationCoordinate2D
     ) {
@@ -202,8 +223,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
         self.bedroomSummary = bedroomSummary
         self.summary = summary
         self.source = source
+        self.borough = borough
         self.statusText = statusText
         self.deadlineText = deadlineText
+        self.deadlineDate = deadlineDate
+        self.urgencyText = urgencyText
+        self.developmentType = developmentType
+        self.unitCount = unitCount
+        self.unitMixDetails = unitMixDetails
+        self.amiSummary = amiSummary
         self.listingURL = listingURL
         self.coordinate = coordinate
     }
@@ -218,8 +246,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
         bedroomSummary = try container.decode(String.self, forKey: .bedroomSummary)
         summary = try container.decode(String.self, forKey: .summary)
         source = try container.decode(ListingSource.self, forKey: .source)
+        borough = try container.decodeIfPresent(String.self, forKey: .borough)
         statusText = try container.decodeIfPresent(String.self, forKey: .statusText)
         deadlineText = try container.decodeIfPresent(String.self, forKey: .deadlineText)
+        deadlineDate = try container.decodeIfPresent(Date.self, forKey: .deadlineDate)
+        urgencyText = try container.decodeIfPresent(String.self, forKey: .urgencyText)
+        developmentType = try container.decodeIfPresent(String.self, forKey: .developmentType)
+        unitCount = try container.decodeIfPresent(Int.self, forKey: .unitCount)
+        unitMixDetails = try container.decodeIfPresent([String].self, forKey: .unitMixDetails) ?? []
+        amiSummary = try container.decodeIfPresent(String.self, forKey: .amiSummary)
         listingURL = try container.decodeIfPresent(URL.self, forKey: .listingURL)
         let latitude = try container.decode(CLLocationDegrees.self, forKey: .latitude)
         let longitude = try container.decode(CLLocationDegrees.self, forKey: .longitude)
@@ -236,8 +271,15 @@ struct HousingListing: Identifiable, Equatable, Codable {
         try container.encode(bedroomSummary, forKey: .bedroomSummary)
         try container.encode(summary, forKey: .summary)
         try container.encode(source, forKey: .source)
+        try container.encodeIfPresent(borough, forKey: .borough)
         try container.encodeIfPresent(statusText, forKey: .statusText)
         try container.encodeIfPresent(deadlineText, forKey: .deadlineText)
+        try container.encodeIfPresent(deadlineDate, forKey: .deadlineDate)
+        try container.encodeIfPresent(urgencyText, forKey: .urgencyText)
+        try container.encodeIfPresent(developmentType, forKey: .developmentType)
+        try container.encodeIfPresent(unitCount, forKey: .unitCount)
+        try container.encode(unitMixDetails, forKey: .unitMixDetails)
+        try container.encodeIfPresent(amiSummary, forKey: .amiSummary)
         try container.encodeIfPresent(listingURL, forKey: .listingURL)
         try container.encode(coordinate.latitude, forKey: .latitude)
         try container.encode(coordinate.longitude, forKey: .longitude)
@@ -259,8 +301,15 @@ enum ListingCatalog {
             bedroomSummary: "2 bedrooms",
             summary: "Voucher-friendly planning sample near transit with elevator building notes.",
             source: .housingConnect,
+            borough: "Bronx",
             statusText: "Planning sample",
             deadlineText: nil,
+            deadlineDate: nil,
+            urgencyText: nil,
+            developmentType: "Rental",
+            unitCount: 1,
+            unitMixDetails: ["2BR sample"],
+            amiSummary: nil,
             listingURL: nil,
             coordinate: CLLocationCoordinate2D(latitude: 40.8448, longitude: -73.8648)
         ),
@@ -273,8 +322,15 @@ enum ListingCatalog {
             bedroomSummary: "1 bedroom",
             summary: "Good fit for saved checklist prep, document review, and commute comparison.",
             source: .streetEasy,
+            borough: "Queens",
             statusText: "Planning sample",
             deadlineText: nil,
+            deadlineDate: nil,
+            urgencyText: nil,
+            developmentType: "Rental",
+            unitCount: 1,
+            unitMixDetails: ["1BR sample"],
+            amiSummary: nil,
             listingURL: URL(string: "https://streeteasy.com/for-rent/nyc")!,
             coordinate: CLLocationCoordinate2D(latitude: 40.7282, longitude: -73.7949)
         ),
@@ -287,8 +343,15 @@ enum ListingCatalog {
             bedroomSummary: "Studio",
             summary: "Studio sample with accessibility notes and inspection-ready reminders.",
             source: .housingConnect,
+            borough: "Brooklyn",
             statusText: "Planning sample",
             deadlineText: nil,
+            deadlineDate: nil,
+            urgencyText: nil,
+            developmentType: "Rental",
+            unitCount: 1,
+            unitMixDetails: ["Studio sample"],
+            amiSummary: nil,
             listingURL: nil,
             coordinate: CLLocationCoordinate2D(latitude: 40.6782, longitude: -73.9442)
         ),
@@ -301,8 +364,15 @@ enum ListingCatalog {
             bedroomSummary: "3 bedrooms",
             summary: "Larger household sample for comparing rent, bedroom size, and paperwork needs.",
             source: .zillow,
+            borough: "Manhattan",
             statusText: "Planning sample",
             deadlineText: nil,
+            deadlineDate: nil,
+            urgencyText: nil,
+            developmentType: "Rental",
+            unitCount: 1,
+            unitMixDetails: ["3BR sample"],
+            amiSummary: nil,
             listingURL: URL(string: "https://www.zillow.com/ny/rentals/")!,
             coordinate: CLLocationCoordinate2D(latitude: 40.7831, longitude: -73.9712)
         )
@@ -322,6 +392,10 @@ private struct HousingConnectLotteryRecord: Decodable {
     let twoBedUnits: String?
     let threeBedUnits: String?
     let fourBedUnits: String?
+    let amiVeryLow: String?
+    let amiLow: String?
+    let amiModerate: String?
+    let amiMiddle: String?
     let borough: String
     let postcode: String?
     let latitude: String?
@@ -340,6 +414,10 @@ private struct HousingConnectLotteryRecord: Decodable {
         case twoBedUnits = "unit_distribution_2bed"
         case threeBedUnits = "unit_distribution_3bed"
         case fourBedUnits = "unit_distribution_4bed"
+        case amiVeryLow = "applied_income_ami_very_low"
+        case amiLow = "applied_income_ami_low"
+        case amiModerate = "applied_income_ami_moderate"
+        case amiMiddle = "applied_income_ami_middle"
         case borough
         case postcode
         case latitude
@@ -359,13 +437,16 @@ private struct HousingConnectLotteryRecord: Decodable {
         }
 
         let bedroomMix = availableBedroomMix
-        let locationName = "\(Self.boroughName(from: borough)), NY"
-        let unitLabel = Int(unitCount ?? "").map { "\($0) units" } ?? "Units listed"
+        let boroughName = Self.boroughName(from: borough)
+        let locationName = "\(boroughName), NY"
+        let parsedUnitCount = Int(unitCount ?? "")
+        let unitLabel = parsedUnitCount.map { "\($0) units" } ?? "Units listed"
         let summaryParts = [
             developmentType.map { "\($0) lottery" },
             unitLabel,
             bedroomMix == "Various layouts" ? nil : bedroomMix
         ].compactMap { $0 }
+        let deadlineDate = Self.date(from: lotteryEndDate)
 
         return HousingListing(
             id: "housing-connect-\(lotteryID)",
@@ -376,15 +457,27 @@ private struct HousingConnectLotteryRecord: Decodable {
             bedroomSummary: bedroomMix,
             summary: summaryParts.joined(separator: " • "),
             source: .housingConnect,
+            borough: boroughName,
             statusText: lotteryStatus,
             deadlineText: Self.shortDate(lotteryEndDate),
+            deadlineDate: deadlineDate,
+            urgencyText: Self.urgencyText(for: deadlineDate),
+            developmentType: developmentType,
+            unitCount: parsedUnitCount,
+            unitMixDetails: unitMixDetails,
+            amiSummary: amiSummary,
             listingURL: ListingSource.housingConnect.destinationURL,
             coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
         )
     }
 
     private var availableBedroomMix: String {
-        let mixes = [
+        let mixes = unitMixDetails.map { $0.components(separatedBy: " ").first ?? $0 }
+        return mixes.isEmpty ? "Various layouts" : mixes.joined(separator: ", ")
+    }
+
+    private var unitMixDetails: [String] {
+        [
             (studioUnits, "Studio"),
             (oneBedUnits, "1BR"),
             (twoBedUnits, "2BR"),
@@ -392,9 +485,21 @@ private struct HousingConnectLotteryRecord: Decodable {
             (fourBedUnits, "4BR")
         ].compactMap { count, label -> String? in
             guard let count, Int(count) ?? 0 > 0 else { return nil }
-            return label
+            return "\(label) x \(count)"
         }
-        return mixes.isEmpty ? "Various layouts" : mixes.joined(separator: ", ")
+    }
+
+    private var amiSummary: String? {
+        let details = [
+            (amiVeryLow, "Very low AMI"),
+            (amiLow, "Low AMI"),
+            (amiModerate, "Moderate AMI"),
+            (amiMiddle, "Middle AMI")
+        ].compactMap { count, label -> String? in
+            guard let count, Int(count) ?? 0 > 0 else { return nil }
+            return "\(label): \(count)"
+        }
+        return details.isEmpty ? nil : details.joined(separator: " • ")
     }
 
     private var maxBedrooms: Int {
@@ -417,10 +522,26 @@ private struct HousingConnectLotteryRecord: Decodable {
     }
 
     private static func shortDate(_ value: String?) -> String? {
+        guard let date = date(from: value) else { return nil }
+        return date.formatted(date: .abbreviated, time: .omitted)
+    }
+
+    private static func date(from value: String?) -> Date? {
         guard let value else { return nil }
         let formatter = ISO8601DateFormatter()
-        guard let date = formatter.date(from: value) else { return nil }
-        return date.formatted(date: .abbreviated, time: .omitted)
+        return formatter.date(from: value)
+    }
+
+    private static func urgencyText(for deadlineDate: Date?) -> String? {
+        guard let deadlineDate else { return nil }
+        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: Calendar.current.startOfDay(for: deadlineDate)).day ?? 0
+        switch days {
+        case ..<0: return "Closed recently"
+        case 0: return "Closes today"
+        case 1...7: return "Closing soon"
+        case 8...21: return "Open now"
+        default: return nil
+        }
     }
 }
 
@@ -429,6 +550,14 @@ enum HousingConnectFeedState: Equatable {
     case loading
     case loaded(Date)
     case failed(String)
+}
+
+enum ListingSortMode: String, CaseIterable, Identifiable {
+    case closingSoonest = "Closing soonest"
+    case borough = "Borough"
+    case alphabetical = "A to Z"
+
+    var id: String { rawValue }
 }
 
 enum VoucherProgram: String, Codable, CaseIterable, Identifiable {
@@ -2259,6 +2388,8 @@ struct ListingsView: View {
     @State private var minimumBedrooms = 0
     @State private var locationText = ""
     @State private var selectedSource: ListingSource?
+    @State private var selectedBorough = "All boroughs"
+    @State private var sortMode = ListingSortMode.closingSoonest
     @State private var mapPosition = MapCameraPosition.region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 40.7580, longitude: -73.9855),
@@ -2266,8 +2397,13 @@ struct ListingsView: View {
         )
     )
 
+    private var availableBoroughs: [String] {
+        let boroughs = Set(store.allListings.compactMap(\.borough)).sorted()
+        return ["All boroughs"] + boroughs
+    }
+
     private var filteredListings: [HousingListing] {
-        store.allListings.filter { listing in
+        let listings = store.allListings.filter { listing in
             let priceMatches = Double(maxPrice).map { enteredMax in
                 guard let monthlyRent = listing.monthlyRent else { return true }
                 return Double(monthlyRent) <= enteredMax
@@ -2277,7 +2413,26 @@ struct ListingsView: View {
                 listing.location.localizedCaseInsensitiveContains(locationText) ||
                 listing.title.localizedCaseInsensitiveContains(locationText)
             let sourceMatches = selectedSource.map { listing.source == $0 } ?? true
-            return priceMatches && bedroomsMatches && locationMatches && sourceMatches
+            let boroughMatches = selectedBorough == "All boroughs" || listing.borough == selectedBorough
+            return priceMatches && bedroomsMatches && locationMatches && sourceMatches && boroughMatches
+        }
+
+        switch sortMode {
+        case .closingSoonest:
+            return listings.sorted { lhs, rhs in
+                switch (lhs.deadlineDate, rhs.deadlineDate) {
+                case let (left?, right?): return left < right
+                case (_?, nil): return true
+                case (nil, _?): return false
+                case (nil, nil): return lhs.title < rhs.title
+                }
+            }
+        case .borough:
+            return listings.sorted {
+                ($0.borough ?? $0.location, $0.title) < ($1.borough ?? $1.location, $1.title)
+            }
+        case .alphabetical:
+            return listings.sorted { $0.title < $1.title }
         }
     }
 
@@ -2356,13 +2511,36 @@ struct ListingsView: View {
                         Text(source.rawValue).tag(Optional(source))
                     }
                 }
+                Picker("Sort", selection: $sortMode) {
+                    ForEach(ListingSortMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+            }
+
+            Section("Boroughs") {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(availableBoroughs, id: \.self) { borough in
+                            Button(borough) {
+                                selectedBorough = borough
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(selectedBorough == borough ? AppTheme.ink : AppTheme.blue.opacity(0.2))
+                            .foregroundStyle(selectedBorough == borough ? .white : AppTheme.ink)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
                 Button("Clear filters") {
                     maxPrice = ""
                     minimumBedrooms = 0
                     locationText = ""
                     selectedSource = nil
+                    selectedBorough = "All boroughs"
+                    sortMode = .closingSoonest
                 }
-                .disabled(maxPrice.isEmpty && minimumBedrooms == 0 && locationText.isEmpty && selectedSource == nil)
+                .disabled(maxPrice.isEmpty && minimumBedrooms == 0 && locationText.isEmpty && selectedSource == nil && selectedBorough == "All boroughs" && sortMode == .closingSoonest)
             }
 
             Section("Map") {
@@ -2373,7 +2551,7 @@ struct ListingsView: View {
                 }
                 .frame(height: 220)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                Text("Map pins are native saved-and-compare-ready samples. Use the source cards above to jump to Housing Connect, StreetEasy, or Zillow for live browsing.")
+                Text("Map pins combine live Housing Connect lotteries with your native saved-and-compare samples.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -2420,6 +2598,11 @@ struct ListingDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    if let urgency = listing.urgencyText {
+                        Label(urgency, systemImage: "clock.badge.exclamationmark")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(urgency == "Closing soon" || urgency == "Closes today" ? .orange : .secondary)
+                    }
                     if let deadline = listing.deadlineText {
                         Label("Deadline \(deadline)", systemImage: "calendar")
                             .font(.caption)
@@ -2443,6 +2626,37 @@ struct ListingDetailView: View {
                 if let listingURL = listing.listingURL {
                     Link(destination: listingURL) {
                         Label("Open \(listing.source.rawValue)", systemImage: "arrow.up.right.square")
+                    }
+                }
+            }
+
+            if listing.source == .housingConnect {
+                Section("Housing Connect details") {
+                    if let developmentType = listing.developmentType {
+                        LabeledContent("Type", value: developmentType)
+                    }
+                    if let unitCount = listing.unitCount {
+                        LabeledContent("Units", value: "\(unitCount)")
+                    }
+                    if !listing.unitMixDetails.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Unit mix")
+                                .font(.subheadline.weight(.semibold))
+                            ForEach(listing.unitMixDetails, id: \.self) { mix in
+                                Label(mix, systemImage: "square.grid.2x2")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    if let amiSummary = listing.amiSummary {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("AMI breakdown")
+                                .font(.subheadline.weight(.semibold))
+                            Text(amiSummary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
@@ -3196,6 +3410,11 @@ struct ListingRow: View {
                 Label(listing.source.rawValue, systemImage: listing.source.systemImage)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(AppTheme.blue)
+                if let urgency = listing.urgencyText {
+                    Label(urgency, systemImage: "clock.badge.exclamationmark")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(urgency == "Closing soon" || urgency == "Closes today" ? .orange : .secondary)
+                }
                 if let deadline = listing.deadlineText {
                     Label("Deadline \(deadline)", systemImage: "calendar")
                         .font(.caption)
