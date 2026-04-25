@@ -1384,9 +1384,7 @@ struct RoleSelectionView: View {
                     }
 
                     Button {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                            onSelect(.applicant)
-                        }
+                        onSelect(.applicant)
                     } label: {
                         RoleCard(
                             role: .applicant,
@@ -1399,9 +1397,7 @@ struct RoleSelectionView: View {
                     .buttonStyle(.plain)
 
                     Button {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                            onSelect(.landlord)
-                        }
+                        onSelect(.landlord)
                     } label: {
                         RoleCard(
                             role: .landlord,
@@ -3516,6 +3512,7 @@ struct AppBackground: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
+        .allowsHitTesting(false)
         .overlay(alignment: .topTrailing) {
             Circle()
                 .fill(AppTheme.mint.opacity(0.5))
