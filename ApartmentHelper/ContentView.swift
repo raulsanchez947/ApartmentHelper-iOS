@@ -1,6 +1,52 @@
 import SwiftUI
 import MapKit
 
+enum ListingSource: String, CaseIterable, Identifiable, Codable {
+    case housingConnect = "Housing Connect"
+    case streetEasy = "StreetEasy"
+    case zillow = "Zillow"
+
+    var id: String { rawValue }
+
+    var systemImage: String {
+        switch self {
+        case .housingConnect: "building.columns.fill"
+        case .streetEasy: "building.2.crop.circle"
+        case .zillow: "map.fill"
+        }
+    }
+
+    var coverage: String {
+        switch self {
+        case .housingConnect: "Affordable lotteries across the five boroughs"
+        case .streetEasy: "NYC rental search across the five boroughs"
+        case .zillow: "Broader rental search for NYC and anywhere in New York State"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .housingConnect:
+            "Use the official NYC Housing Connect lottery search for affordable opportunities."
+        case .streetEasy:
+            "Browse active NYC listings on StreetEasy when you want borough-by-borough market listings."
+        case .zillow:
+            "Use Zillow when you want broader New York State rental coverage beyond the five boroughs."
+        }
+    }
+
+    var destinationURL: URL {
+        switch self {
+        case .housingConnect:
+            URL(string: "https://housingconnect.nyc.gov/PublicWeb/search-lotteries")!
+        case .streetEasy:
+            URL(string: "https://streeteasy.com/for-rent/nyc")!
+        case .zillow:
+            URL(string: "https://www.zillow.com/ny/rentals/")!
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var store = HousingNavStore()
     @AppStorage("selectedHousingNavRole") private var selectedRoleRaw = ""
@@ -104,14 +150,98 @@ enum YesNoAnswer: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-struct HousingListing: Identifiable, Equatable {
+struct HousingListing: Identifiable, Equatable, Codable {
     let id: String
     let title: String
     let location: String
-    let monthlyRent: Int
+    let monthlyRent: Int?
     let bedrooms: Int
+    let bedroomSummary: String
     let summary: String
+    let source: ListingSource
+    let statusText: String?
+    let deadlineText: String?
+    let listingURL: URL?
     let coordinate: CLLocationCoordinate2D
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case location
+        case monthlyRent
+        case bedrooms
+        case bedroomSummary
+        case summary
+        case source
+        case statusText
+        case deadlineText
+        case listingURL
+        case latitude
+        case longitude
+    }
+
+    init(
+        id: String,
+        title: String,
+        location: String,
+        monthlyRent: Int?,
+        bedrooms: Int,
+        bedroomSummary: String,
+        summary: String,
+        source: ListingSource,
+        statusText: String?,
+        deadlineText: String?,
+        listingURL: URL?,
+        coordinate: CLLocationCoordinate2D
+    ) {
+        self.id = id
+        self.title = title
+        self.location = location
+        self.monthlyRent = monthlyRent
+        self.bedrooms = bedrooms
+        self.bedroomSummary = bedroomSummary
+        self.summary = summary
+        self.source = source
+        self.statusText = statusText
+        self.deadlineText = deadlineText
+        self.listingURL = listingURL
+        self.coordinate = coordinate
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        location = try container.decode(String.self, forKey: .location)
+        monthlyRent = try container.decodeIfPresent(Int.self, forKey: .monthlyRent)
+        bedrooms = try container.decode(Int.self, forKey: .bedrooms)
+        bedroomSummary = try container.decode(String.self, forKey: .bedroomSummary)
+        summary = try container.decode(String.self, forKey: .summary)
+        source = try container.decode(ListingSource.self, forKey: .source)
+        statusText = try container.decodeIfPresent(String.self, forKey: .statusText)
+        deadlineText = try container.decodeIfPresent(String.self, forKey: .deadlineText)
+        listingURL = try container.decodeIfPresent(URL.self, forKey: .listingURL)
+        let latitude = try container.decode(CLLocationDegrees.self, forKey: .latitude)
+        let longitude = try container.decode(CLLocationDegrees.self, forKey: .longitude)
+        coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(title, forKey: .title)
+        try container.encode(location, forKey: .location)
+        try container.encodeIfPresent(monthlyRent, forKey: .monthlyRent)
+        try container.encode(bedrooms, forKey: .bedrooms)
+        try container.encode(bedroomSummary, forKey: .bedroomSummary)
+        try container.encode(summary, forKey: .summary)
+        try container.encode(source, forKey: .source)
+        try container.encodeIfPresent(statusText, forKey: .statusText)
+        try container.encodeIfPresent(deadlineText, forKey: .deadlineText)
+        try container.encodeIfPresent(listingURL, forKey: .listingURL)
+        try container.encode(coordinate.latitude, forKey: .latitude)
+        try container.encode(coordinate.longitude, forKey: .longitude)
+    }
 
     static func == (lhs: HousingListing, rhs: HousingListing) -> Bool {
         lhs.id == rhs.id
@@ -126,7 +256,12 @@ enum ListingCatalog {
             location: "Bronx, NY",
             monthlyRent: 2450,
             bedrooms: 2,
+            bedroomSummary: "2 bedrooms",
             summary: "Voucher-friendly planning sample near transit with elevator building notes.",
+            source: .housingConnect,
+            statusText: "Planning sample",
+            deadlineText: nil,
+            listingURL: nil,
             coordinate: CLLocationCoordinate2D(latitude: 40.8448, longitude: -73.8648)
         ),
         HousingListing(
@@ -135,7 +270,12 @@ enum ListingCatalog {
             location: "Queens, NY",
             monthlyRent: 2180,
             bedrooms: 1,
+            bedroomSummary: "1 bedroom",
             summary: "Good fit for saved checklist prep, document review, and commute comparison.",
+            source: .streetEasy,
+            statusText: "Planning sample",
+            deadlineText: nil,
+            listingURL: URL(string: "https://streeteasy.com/for-rent/nyc")!,
             coordinate: CLLocationCoordinate2D(latitude: 40.7282, longitude: -73.7949)
         ),
         HousingListing(
@@ -144,7 +284,12 @@ enum ListingCatalog {
             location: "Brooklyn, NY",
             monthlyRent: 1985,
             bedrooms: 0,
+            bedroomSummary: "Studio",
             summary: "Studio sample with accessibility notes and inspection-ready reminders.",
+            source: .housingConnect,
+            statusText: "Planning sample",
+            deadlineText: nil,
+            listingURL: nil,
             coordinate: CLLocationCoordinate2D(latitude: 40.6782, longitude: -73.9442)
         ),
         HousingListing(
@@ -153,10 +298,137 @@ enum ListingCatalog {
             location: "Manhattan, NY",
             monthlyRent: 3750,
             bedrooms: 3,
+            bedroomSummary: "3 bedrooms",
             summary: "Larger household sample for comparing rent, bedroom size, and paperwork needs.",
+            source: .zillow,
+            statusText: "Planning sample",
+            deadlineText: nil,
+            listingURL: URL(string: "https://www.zillow.com/ny/rentals/")!,
             coordinate: CLLocationCoordinate2D(latitude: 40.7831, longitude: -73.9712)
         )
     ]
+}
+
+private struct HousingConnectLotteryRecord: Decodable {
+    let lotteryID: String
+    let lotteryName: String
+    let lotteryStatus: String
+    let developmentType: String?
+    let lotteryStartDate: String?
+    let lotteryEndDate: String?
+    let unitCount: String?
+    let studioUnits: String?
+    let oneBedUnits: String?
+    let twoBedUnits: String?
+    let threeBedUnits: String?
+    let fourBedUnits: String?
+    let borough: String
+    let postcode: String?
+    let latitude: String?
+    let longitude: String?
+
+    enum CodingKeys: String, CodingKey {
+        case lotteryID = "lottery_id"
+        case lotteryName = "lottery_name"
+        case lotteryStatus = "lottery_status"
+        case developmentType = "development_type"
+        case lotteryStartDate = "lottery_start_date"
+        case lotteryEndDate = "lottery_end_date"
+        case unitCount = "unit_count"
+        case studioUnits = "unit_distribution_studio"
+        case oneBedUnits = "unit_distribution_1bed"
+        case twoBedUnits = "unit_distribution_2bed"
+        case threeBedUnits = "unit_distribution_3bed"
+        case fourBedUnits = "unit_distribution_4bed"
+        case borough
+        case postcode
+        case latitude
+        case longitude
+    }
+
+    func toListing() -> HousingListing? {
+        guard
+            let latitude,
+            let longitude,
+            latitude != "Multiple",
+            longitude != "Multiple",
+            let lat = Double(latitude),
+            let lon = Double(longitude)
+        else {
+            return nil
+        }
+
+        let bedroomMix = availableBedroomMix
+        let locationName = "\(Self.boroughName(from: borough)), NY"
+        let unitLabel = Int(unitCount ?? "").map { "\($0) units" } ?? "Units listed"
+        let summaryParts = [
+            developmentType.map { "\($0) lottery" },
+            unitLabel,
+            bedroomMix == "Various layouts" ? nil : bedroomMix
+        ].compactMap { $0 }
+
+        return HousingListing(
+            id: "housing-connect-\(lotteryID)",
+            title: lotteryName,
+            location: locationName,
+            monthlyRent: nil,
+            bedrooms: maxBedrooms,
+            bedroomSummary: bedroomMix,
+            summary: summaryParts.joined(separator: " • "),
+            source: .housingConnect,
+            statusText: lotteryStatus,
+            deadlineText: Self.shortDate(lotteryEndDate),
+            listingURL: ListingSource.housingConnect.destinationURL,
+            coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        )
+    }
+
+    private var availableBedroomMix: String {
+        let mixes = [
+            (studioUnits, "Studio"),
+            (oneBedUnits, "1BR"),
+            (twoBedUnits, "2BR"),
+            (threeBedUnits, "3BR"),
+            (fourBedUnits, "4BR")
+        ].compactMap { count, label -> String? in
+            guard let count, Int(count) ?? 0 > 0 else { return nil }
+            return label
+        }
+        return mixes.isEmpty ? "Various layouts" : mixes.joined(separator: ", ")
+    }
+
+    private var maxBedrooms: Int {
+        if Int(fourBedUnits ?? "") ?? 0 > 0 { return 4 }
+        if Int(threeBedUnits ?? "") ?? 0 > 0 { return 3 }
+        if Int(twoBedUnits ?? "") ?? 0 > 0 { return 2 }
+        if Int(oneBedUnits ?? "") ?? 0 > 0 { return 1 }
+        return 0
+    }
+
+    private static func boroughName(from value: String) -> String {
+        switch value {
+        case "BK": "Brooklyn"
+        case "BX": "Bronx"
+        case "MN": "Manhattan"
+        case "QN": "Queens"
+        case "SI": "Staten Island"
+        default: value
+        }
+    }
+
+    private static func shortDate(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let formatter = ISO8601DateFormatter()
+        guard let date = formatter.date(from: value) else { return nil }
+        return date.formatted(date: .abbreviated, time: .omitted)
+    }
+}
+
+enum HousingConnectFeedState: Equatable {
+    case idle
+    case loading
+    case loaded(Date)
+    case failed(String)
 }
 
 enum VoucherProgram: String, Codable, CaseIterable, Identifiable {
@@ -623,6 +895,8 @@ final class HousingNavStore: ObservableObject {
     @Published var guideProgress: [GuideProgressItem] { didSet { save(guideProgress, key: Keys.guideProgress) } }
     @Published var favoriteListingIDs: Set<String> { didSet { save(Array(favoriteListingIDs), key: Keys.favoriteListingIDs) } }
     @Published var listingNotes: [String: String] { didSet { save(listingNotes, key: Keys.listingNotes) } }
+    @Published var housingConnectListings: [HousingListing] { didSet { save(housingConnectListings, key: Keys.housingConnectListings) } }
+    @Published var housingConnectFeedState: HousingConnectFeedState = .idle
 
     private enum Keys {
         static let applicantPlans = "housingNav.applicantPlans"
@@ -634,6 +908,7 @@ final class HousingNavStore: ObservableObject {
         static let guideProgress = "housingNav.guideProgress"
         static let favoriteListingIDs = "housingNav.favoriteListingIDs"
         static let listingNotes = "housingNav.listingNotes"
+        static let housingConnectListings = "housingNav.housingConnectListings"
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -646,6 +921,7 @@ final class HousingNavStore: ObservableObject {
         guideProgress = Self.load(Keys.guideProgress, defaults: defaults) ?? []
         favoriteListingIDs = Set(Self.load(Keys.favoriteListingIDs, defaults: defaults) ?? Self.sampleFavoriteListingIDs)
         listingNotes = Self.load(Keys.listingNotes, defaults: defaults) ?? Self.sampleListingNotes
+        housingConnectListings = Self.load(Keys.housingConnectListings, defaults: defaults) ?? []
     }
 
     func saveApplicantPlan(_ plan: ApplicantPlan) {
@@ -761,7 +1037,44 @@ final class HousingNavStore: ObservableObject {
     }
 
     var favoriteListings: [HousingListing] {
-        ListingCatalog.all.filter { favoriteListingIDs.contains($0.id) }
+        allListings.filter { favoriteListingIDs.contains($0.id) }
+    }
+
+    var allListings: [HousingListing] {
+        housingConnectListings + ListingCatalog.all.filter { sample in
+            !housingConnectListings.contains(where: { $0.id == sample.id })
+        }
+    }
+
+    func loadHousingConnectListings(force: Bool = false) async {
+        if !force, !housingConnectListings.isEmpty, case .loaded = housingConnectFeedState {
+            return
+        }
+
+        housingConnectFeedState = .loading
+
+        do {
+            let today = Date.now.formatted(.iso8601.year().month().day())
+            var components = URLComponents(string: "https://data.cityofnewyork.us/resource/vy5i-a666.json")!
+            components.queryItems = [
+                URLQueryItem(name: "$where", value: "lottery_status='Active' AND lottery_end_date >= '\(today)T00:00:00'"),
+                URLQueryItem(name: "$order", value: "lottery_end_date ASC"),
+                URLQueryItem(name: "$limit", value: "25")
+            ]
+
+            let (data, _) = try await URLSession.shared.data(from: components.url!)
+            let decoded = try JSONDecoder().decode([HousingConnectLotteryRecord].self, from: data)
+            let listings = decoded.compactMap { $0.toListing() }
+
+            if listings.isEmpty {
+                housingConnectFeedState = .failed("No active Housing Connect listings were available right now.")
+            } else {
+                housingConnectListings = listings
+                housingConnectFeedState = .loaded(.now)
+            }
+        } catch {
+            housingConnectFeedState = .failed("Housing Connect could not be refreshed right now. Saved listings and notes still work normally.")
+        }
     }
 
     static func inferredTagName(for text: String, role: AppRole) -> String {
@@ -1945,6 +2258,7 @@ struct ListingsView: View {
     @State private var maxPrice = ""
     @State private var minimumBedrooms = 0
     @State private var locationText = ""
+    @State private var selectedSource: ListingSource?
     @State private var mapPosition = MapCameraPosition.region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 40.7580, longitude: -73.9855),
@@ -1953,29 +2267,102 @@ struct ListingsView: View {
     )
 
     private var filteredListings: [HousingListing] {
-        ListingCatalog.all.filter { listing in
-            let priceMatches = Double(maxPrice).map { Double(listing.monthlyRent) <= $0 } ?? true
+        store.allListings.filter { listing in
+            let priceMatches = Double(maxPrice).map { enteredMax in
+                guard let monthlyRent = listing.monthlyRent else { return true }
+                return Double(monthlyRent) <= enteredMax
+            } ?? true
             let bedroomsMatches = listing.bedrooms >= minimumBedrooms
             let locationMatches = locationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
                 listing.location.localizedCaseInsensitiveContains(locationText) ||
                 listing.title.localizedCaseInsensitiveContains(locationText)
-            return priceMatches && bedroomsMatches && locationMatches
+            let sourceMatches = selectedSource.map { listing.source == $0 } ?? true
+            return priceMatches && bedroomsMatches && locationMatches && sourceMatches
         }
     }
 
     var body: some View {
         List {
+            Section("Listing sources") {
+                ForEach(ListingSource.allCases) { source in
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 10) {
+                            Image(systemName: source.systemImage)
+                                .foregroundStyle(AppTheme.blue)
+                                .frame(width: 34, height: 34)
+                                .background(AppTheme.sky, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(source.rawValue)
+                                    .font(.headline)
+                                    .foregroundStyle(AppTheme.ink)
+                                Text(source.coverage)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button(selectedSource == source ? "Selected" : "Use") {
+                                selectedSource = selectedSource == source ? nil : source
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(selectedSource == source ? AppTheme.ink : AppTheme.blue)
+                        }
+
+                        Text(source.detail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Link(destination: source.destinationURL) {
+                            Label("Open \(source.rawValue)", systemImage: "arrow.up.right.square")
+                        }
+                        .font(.subheadline.weight(.semibold))
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
+            Section("Housing Connect feed") {
+                switch store.housingConnectFeedState {
+                case .idle, .loading:
+                    Label("Loading current Housing Connect lotteries...", systemImage: "arrow.triangle.2.circlepath")
+                        .foregroundStyle(.secondary)
+                case .loaded(let date):
+                    Label("Updated \(date.formatted(date: .abbreviated, time: .shortened))", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                case .failed(let message):
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Live Housing Connect feed unavailable", systemImage: "wifi.exclamationmark")
+                            .foregroundStyle(.orange)
+                        Text(message)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Button("Refresh Housing Connect feed") {
+                    Task {
+                        await store.loadHousingConnectListings(force: true)
+                    }
+                }
+            }
+
             Section("Native filters") {
                 MoneyField(title: "Max rent", text: $maxPrice)
                 Stepper("Minimum bedrooms: \(bedroomLabel(minimumBedrooms))", value: $minimumBedrooms, in: 0...4)
                 TextField("Location or listing name", text: $locationText)
                     .textInputAutocapitalization(.words)
+                Picker("Source", selection: $selectedSource) {
+                    Text("All sources").tag(ListingSource?.none)
+                    ForEach(ListingSource.allCases) { source in
+                        Text(source.rawValue).tag(Optional(source))
+                    }
+                }
                 Button("Clear filters") {
                     maxPrice = ""
                     minimumBedrooms = 0
                     locationText = ""
+                    selectedSource = nil
                 }
-                .disabled(maxPrice.isEmpty && minimumBedrooms == 0 && locationText.isEmpty)
+                .disabled(maxPrice.isEmpty && minimumBedrooms == 0 && locationText.isEmpty && selectedSource == nil)
             }
 
             Section("Map") {
@@ -1986,7 +2373,7 @@ struct ListingsView: View {
                 }
                 .frame(height: 220)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                Text("Map pins are native sample listings so reviewers can test filtering, saving, notes, and comparison without web content.")
+                Text("Map pins are native saved-and-compare-ready samples. Use the source cards above to jump to Housing Connect, StreetEasy, or Zillow for live browsing.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -2006,6 +2393,9 @@ struct ListingsView: View {
             }
         }
         .navigationTitle("Listings")
+        .task {
+            await store.loadHousingConnectListings()
+        }
     }
 }
 
@@ -2022,16 +2412,39 @@ struct ListingDetailView: View {
                     Text(listing.title)
                         .font(.title2.weight(.bold))
                         .foregroundStyle(AppTheme.ink)
+                    Label(listing.source.rawValue, systemImage: listing.source.systemImage)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.blue)
+                    if let status = listing.statusText {
+                        Label(status, systemImage: "flag.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let deadline = listing.deadlineText {
+                        Label("Deadline \(deadline)", systemImage: "calendar")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Text(listing.summary)
                         .foregroundStyle(.secondary)
                     HStack {
-                        Label(formatCurrency(Double(listing.monthlyRent)), systemImage: "dollarsign.circle")
+                        Label(listingRentText(listing), systemImage: "dollarsign.circle")
                         Spacer()
-                        Label(bedroomLabel(listing.bedrooms), systemImage: "bed.double")
+                        Label(listing.bedroomSummary, systemImage: "bed.double")
                     }
                     .font(.subheadline.weight(.semibold))
                 }
                 .padding(.vertical, 6)
+            }
+
+            Section("Source") {
+                Text(listing.source.coverage)
+                    .foregroundStyle(.secondary)
+                if let listingURL = listing.listingURL {
+                    Link(destination: listingURL) {
+                        Label("Open \(listing.source.rawValue)", systemImage: "arrow.up.right.square")
+                    }
+                }
             }
 
             Section("Saved listing") {
@@ -2095,9 +2508,13 @@ struct CompareListingsView: View {
                                 .font(.headline)
                                 .foregroundStyle(AppTheme.ink)
                             HStack {
-                                ComparisonPill(title: "Rent", value: formatCurrency(Double(listing.monthlyRent)))
-                                ComparisonPill(title: "Beds", value: bedroomLabel(listing.bedrooms))
+                                ComparisonPill(title: "Rent", value: listingRentText(listing))
+                                ComparisonPill(title: "Beds", value: listing.bedroomSummary)
                                 ComparisonPill(title: "Area", value: listing.location)
+                            }
+                            ComparisonPill(title: "Source", value: listing.source.rawValue)
+                            if let deadline = listing.deadlineText {
+                                ComparisonPill(title: "Deadline", value: deadline)
                             }
                             if !store.note(for: listing).isEmpty {
                                 Label(store.note(for: listing), systemImage: "note.text")
@@ -2773,9 +3190,17 @@ struct ListingRow: View {
                 Text(listing.title)
                     .font(.headline)
                     .foregroundStyle(AppTheme.ink)
-                Text("\(listing.location) • \(bedroomLabel(listing.bedrooms)) • \(formatCurrency(Double(listing.monthlyRent)))")
+                Text("\(listing.location) • \(listing.bedroomSummary) • \(listingRentText(listing))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                Label(listing.source.rawValue, systemImage: listing.source.systemImage)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.blue)
+                if let deadline = listing.deadlineText {
+                    Label("Deadline \(deadline)", systemImage: "calendar")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 if !store.note(for: listing).isEmpty {
                     Label("Note saved", systemImage: "note.text")
                         .font(.caption.weight(.semibold))
@@ -2894,6 +3319,10 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 func formatCurrency(_ value: Double) -> String {
     value.formatted(.currency(code: Locale.current.currency?.identifier ?? "USD"))
+}
+
+func listingRentText(_ listing: HousingListing) -> String {
+    listing.monthlyRent.map { formatCurrency(Double($0)) } ?? "Rent not listed"
 }
 
 func bedroomLabel(_ bedrooms: Int) -> String {
