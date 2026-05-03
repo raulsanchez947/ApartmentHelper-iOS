@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10000010000000000000001 /* ApartmentHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000001 /* ApartmentHelper.swift */; };
+		A10000010000000000000001 /* HousingNavApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000001 /* HousingNavApp.swift */; };
 		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000120000000000000001 /* ContentView.swift */; };
 		A10000040000000000000001 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000140000000000000001 /* AppConfig.swift */; };
 		A10000050000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000150000000000000001 /* Assets.xcassets */; };
@@ -15,7 +15,7 @@
 
 /* Begin PBXFileReference section */
 		A10000100000000000000001 /* HousingNav.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HousingNav.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A10000110000000000000001 /* ApartmentHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApartmentHelper.swift; sourceTree = "<group>"; };
+		A10000110000000000000001 /* HousingNavApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HousingNavApp.swift; sourceTree = "<group>"; };
 		A10000120000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A10000140000000000000001 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		A10000150000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -36,21 +36,21 @@
 		A10000300000000000000001 = {
 			isa = PBXGroup;
 			children = (
-				A10000310000000000000001 /* ApartmentHelper */,
+				A10000310000000000000001 /* HousingNav */,
 				A10000320000000000000001 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A10000310000000000000001 /* ApartmentHelper */ = {
+		A10000310000000000000001 /* HousingNav */ = {
 			isa = PBXGroup;
 			children = (
 				A10000140000000000000001 /* AppConfig.swift */,
-				A10000110000000000000001 /* ApartmentHelper.swift */,
+				A10000110000000000000001 /* HousingNavApp.swift */,
 				A10000120000000000000001 /* ContentView.swift */,
 				A10000150000000000000001 /* Assets.xcassets */,
 				A10000160000000000000001 /* Info.plist */,
 			);
-			path = ApartmentHelper;
+			path = HousingNav;
 			sourceTree = "<group>";
 		};
 		A10000320000000000000001 /* Products */ = {
@@ -132,7 +132,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000040000000000000001 /* AppConfig.swift in Sources */,
-				A10000010000000000000001 /* ApartmentHelper.swift in Sources */,
+				A10000010000000000000001 /* HousingNavApp.swift in Sources */,
 				A10000020000000000000001 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,7 +152,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ApartmentHelper/Info.plist;
+				INFOPLIST_FILE = HousingNav/Info.plist;
 				INFOPLIST_KEY_CFBundleName = HousingNav;
 				INFOPLIST_KEY_CFBundleDisplayName = HousingNav;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -183,7 +183,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ApartmentHelper/Info.plist;
+				INFOPLIST_FILE = HousingNav/Info.plist;
 				INFOPLIST_KEY_CFBundleName = HousingNav;
 				INFOPLIST_KEY_CFBundleDisplayName = HousingNav;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;

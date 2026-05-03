@@ -2493,10 +2493,7 @@ struct ListingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
-                        Link(destination: source.destinationURL) {
-                            Label("Open \(source.rawValue)", systemImage: "arrow.up.right.square")
-                        }
-                        .font(.subheadline.weight(.semibold))
+                        ExternalActionButton(title: "Open \(source.rawValue)", systemImage: "arrow.up.right.square", url: source.destinationURL)
                     }
                     .padding(.vertical, 4)
                 }
@@ -2651,9 +2648,7 @@ struct ListingDetailView: View {
                 Text(listing.source.coverage)
                     .foregroundStyle(.secondary)
                 if let listingURL = listing.listingURL {
-                    Link(destination: listingURL) {
-                        Label("Open \(listing.source.rawValue)", systemImage: "arrow.up.right.square")
-                    }
+                    ExternalActionButton(title: "Open \(listing.source.rawValue)", systemImage: "arrow.up.right.square", url: listingURL)
                 }
             }
 
@@ -3183,6 +3178,33 @@ struct RoleSwitcherCard: View {
         .padding(16)
         .background(AppTheme.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+    }
+}
+
+struct ExternalActionButton: View {
+    let title: String
+    let systemImage: String
+    let url: URL
+
+    var body: some View {
+        Button {
+            UIApplication.shared.open(url)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.headline)
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(AppTheme.blue, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }
 

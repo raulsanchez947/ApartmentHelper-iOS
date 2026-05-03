@@ -12,6 +12,6 @@ This repository includes an Xcode-ready native SwiftUI iPhone app for HousingNav
 
 The core experience is native-first: role selection, applicant and landlord dashboards, native listing filters, saved listings, listing notes, compare tools, calculators, checklists, interactive guides, saved results, support, and Betty assistant tools all work without external web content.
 
-Visible app naming is controlled in `ApartmentHelper/Info.plist` with `CFBundleDisplayName` and `CFBundleName` set to `HousingNav`.
+Visible app naming is controlled in `HousingNav/Info.plist` with `CFBundleDisplayName` and `CFBundleName` set to `HousingNav`.
 
 The static App Store support page template lives at `support/index.html`.
